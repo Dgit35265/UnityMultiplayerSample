@@ -4,6 +4,7 @@ using Unity.Networking.Transport;
 using NetworkMessages;
 using System;
 using System.Text;
+using NetworkObjects;
 
 public class NetworkClient : MonoBehaviour
 {
@@ -11,8 +12,10 @@ public class NetworkClient : MonoBehaviour
     public NetworkConnection m_Connection;
     public string serverIP;
     public ushort serverPort;
+    public GameObject playerPrefab;
 
-    
+    private GameObject localPlayer;
+        
     void Start ()
     {
         m_Driver = NetworkDriver.Create();
@@ -30,11 +33,12 @@ public class NetworkClient : MonoBehaviour
 
     void OnConnect(){
         Debug.Log("We are now connected to the server");
+        CreatePlayer();
 
-        //// Example to send a handshake message:
-        // HandshakeMsg m = new HandshakeMsg();
-        // m.player.id = m_Connection.InternalId.ToString();
-        // SendToServer(JsonUtility.ToJson(m));
+        // Example to send a handshake message:
+        HandshakeMsg m = new HandshakeMsg();
+        m.player.id = m_Connection.InternalId.ToString();
+        SendToServer(JsonUtility.ToJson(m));
     }
 
     void OnData(DataStreamReader stream){
@@ -75,9 +79,17 @@ public class NetworkClient : MonoBehaviour
     public void OnDestroy()
     {
         m_Driver.Dispose();
-    }   
+    }
+
+    //NetworkObjects.NetworkPlayer myPlayer;
+
     void Update()
     {
+        //if(Input.KeyDown(""))
+        //{
+        //    myPlayer.cubeColor = new Color(1f, 1f, 1f, 1f);
+        //}
+
         m_Driver.ScheduleUpdate().Complete();
 
         if (!m_Connection.IsCreated)
@@ -105,5 +117,11 @@ public class NetworkClient : MonoBehaviour
 
             cmd = m_Connection.PopEvent(m_Driver, out stream);
         }
+    }
+
+    void CreatePlayer()
+    {
+        localPlayer = Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        localPlayer.AddComponent<PlayerMovement>();
     }
 }

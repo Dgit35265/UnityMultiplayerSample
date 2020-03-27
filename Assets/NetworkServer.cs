@@ -24,7 +24,7 @@ public class NetworkServer : MonoBehaviour
 
         m_Connections = new NativeList<NetworkConnection>(16, Allocator.Persistent);
     }
-    void SendToServer(string message, NetworkConnection c){
+    void SendToClient(string message, NetworkConnection c){
         var writer = m_Driver.BeginSend(NetworkPipeline.Null, c);
         NativeArray<byte> bytes = new NativeArray<byte>(Encoding.ASCII.GetBytes(message),Allocator.Temp);
         writer.WriteBytes(bytes);
@@ -40,10 +40,10 @@ public class NetworkServer : MonoBehaviour
         m_Connections.Add(c);
         Debug.Log("Accepted a connection");
 
-        //// Example to send a handshake message:
-        // HandshakeMsg m = new HandshakeMsg();
-        // m.player.id = c.InternalId.ToString();
-        // SendToServer(JsonUtility.ToJson(m),c);        
+        // Example to send a handshake message:
+        HandshakeMsg m = new HandshakeMsg();
+        m.player.id = c.InternalId.ToString();
+        SendToClient(JsonUtility.ToJson(m), c);
     }
 
     void OnData(DataStreamReader stream, int i){
@@ -73,7 +73,7 @@ public class NetworkServer : MonoBehaviour
 
     void OnDisconnect(int i){
         Debug.Log("Client disconnected from server");
-        m_Connections[i] = default(NetworkConnection);
+        m_Connections[i] = default(NetworkConnection); //Null
     }
 
     void Update ()
