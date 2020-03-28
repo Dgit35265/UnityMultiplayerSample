@@ -7,6 +7,10 @@ namespace NetworkMessages
         PLAYER_UPDATE,
         SERVER_UPDATE,
         HANDSHAKE,
+        LIST_UPDATE,
+        PLAYER_ADD,
+        PLAYER_DROP,
+        HEARTBEAT
     }
     [System.Serializable]
     public class NetworkHeader{
@@ -36,6 +40,42 @@ namespace NetworkMessages
             players = new List<NetworkObjects.NetworkPlayer>();
         }
     }
+    public class ListUpdateMsg : NetworkHeader
+    {
+        public List<NetworkObjects.NetworkPlayer> players;
+        public ListUpdateMsg()
+        {      // Constructor
+            cmd = Commands.LIST_UPDATE;
+            players = new List<NetworkObjects.NetworkPlayer>();
+        }
+    }
+    public class PlayerAddMsg:NetworkHeader
+    {
+        public NetworkObjects.NetworkPlayer player;
+        public PlayerAddMsg()
+        {      // Constructor
+            cmd = Commands.PLAYER_ADD;
+            player = new NetworkObjects.NetworkPlayer();
+        }
+    }
+    public class PlayerDropMsg : NetworkHeader
+    {
+        public List<NetworkObjects.NetworkPlayer> dplayers;
+        public PlayerDropMsg()
+        {
+            cmd = Commands.PLAYER_DROP;
+            dplayers = new List<NetworkObjects.NetworkPlayer>();
+        }
+    }
+    public class Heartbeat: NetworkHeader
+    {
+        public NetworkObjects.NetworkPlayer player;
+        public Heartbeat()
+        {      // Constructor
+            cmd = Commands.HEARTBEAT;
+            player = new NetworkObjects.NetworkPlayer();
+        }
+    }
 } 
 
 namespace NetworkObjects
@@ -47,6 +87,8 @@ namespace NetworkObjects
     [System.Serializable]
     public class NetworkPlayer : NetworkObject{
         public Color cubeColor;
+        public Vector3 pos;
+        public float lastHB;
 
         public NetworkPlayer(){
             cubeColor = new Color();
